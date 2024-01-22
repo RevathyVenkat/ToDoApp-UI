@@ -97,7 +97,7 @@ function Home() {
             </Modal>
             {isLoading ? <div className='loading-container'><Spin indicator={<LoadingOutlined style={{ fontSize: 36 }} spin />} /> </div> :
                 <Row gutter={[32, 32]} className='card-container'>
-                    {toDoData.map((x: IToDoData, index) => {
+                    {toDoData && toDoData.length> 0 && toDoData.map((x: IToDoData, index) => {
                         return <Col span={6} >
                             <CardComponent
                                 key={index}
