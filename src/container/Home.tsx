@@ -3,12 +3,14 @@ import Header from '../components/Header';
 import CardComponent from '../components/Card';
 import { IAddMasterPayload, ITask, IToDoData, InitToDoData, NotificationType } from '../Model/constant';
 import { addMaster, getToDoData } from '../api/taskApi';
-import { Button, Col, FloatButton, Input, Modal, Row, Spin, notification } from 'antd';
+import { Button, Col, Divider, FloatButton, Input, Modal, Row, Spin, notification } from 'antd';
 import { CustomerServiceOutlined, LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import './index.css'
 
 function Home() {
     const [toDoData, setToDoData] = useState<IToDoData[]>([InitToDoData])
+    const [pinnedData, setPinnedData] = useState<IToDoData[]>([InitToDoData])
+    const [notPinnedData, setNotPinnedData] = useState<IToDoData[]>([InitToDoData])
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [titleValue, setTitleValue] = useState('')
     const [isLoading, setIsLoading] = useState(false);
@@ -33,6 +35,22 @@ function Home() {
                 setIsLoading(false)
             });
     }, [])
+
+    useEffect(() => {
+        if(toDoData && toDoData.length > 0) {
+            let pinnedData: IToDoData[] = []
+            let notPinnedData: IToDoData[] = []
+            toDoData.filter((x: IToDoData) => {
+                if (x.pinned) {
+                    pinnedData.push(x)
+                } else {
+                    notPinnedData.push(x)
+                }
+            })
+            setPinnedData(pinnedData)
+            setNotPinnedData(notPinnedData)
+        }
+    }, [toDoData])
 
     const changeMasterData = (updatedData: IToDoData[]) => {
         setToDoData(updatedData)
@@ -95,18 +113,35 @@ function Home() {
                     onChange={onEditFieldChange}
                 />
             </Modal>
-            {isLoading ? <div className='loading-container'><Spin indicator={<LoadingOutlined style={{ fontSize: 36 }} spin />} /> </div> :
-                <Row gutter={[32, 32]} className='card-container'>
-                    {toDoData && toDoData.length> 0 && toDoData.map((x: IToDoData, index) => {
-                        return <Col span={6} >
-                            <CardComponent
-                                key={index}
-                                data={x}
-                                changeMasterData={changeMasterData}
-                                notificationUpdate={openNotificationWithIcon} />
-                        </Col>
-                    })}
-                </Row>
+            {isLoading
+                ? <div className='loading-container'>
+                    <Spin indicator={<LoadingOutlined style={{ fontSize: 36 }} spin />} />
+                </div>
+                : <>
+                    <Row gutter={[32, 32]} className='card-container'>
+                        {pinnedData && pinnedData.length > 0 && pinnedData.map((x: IToDoData, index) => {
+                            return <Col span={6}>
+                                <CardComponent
+                                    key={index}
+                                    data={x}
+                                    changeMasterData={changeMasterData}
+                                    notificationUpdate={openNotificationWithIcon} />
+                            </Col>
+                        })}
+                    </Row>
+                    {notPinnedData && notPinnedData.length > 0 && <Divider />}
+                    <Row gutter={[32, 32]} className='card-container'>
+                        {notPinnedData && notPinnedData.length > 0 && notPinnedData.map((x: IToDoData, index) => {
+                            return <Col span={6}>
+                                <CardComponent
+                                    key={index}
+                                    data={x}
+                                    changeMasterData={changeMasterData}
+                                    notificationUpdate={openNotificationWithIcon} />
+                            </Col>
+                        })}
+                    </Row>
+                </>
             }
         </div>
     )

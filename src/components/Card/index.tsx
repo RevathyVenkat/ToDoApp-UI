@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Button, Card, Input, Space } from 'antd';
-import { IAddMasterPayload, IAddTaskPayload, IEditData, ITask, IToDoData, InitEditData, NotificationType } from '../../Model/constant';
+import React, { useEffect, useState } from 'react';
+import { Button, Card, Divider, Input, Space } from 'antd';
+import { IAddMasterPayload, IAddTaskPayload, IEditData, ITask, IToDoData, InitEditData, InitTask, NotificationType } from '../../Model/constant';
 import { PushpinFilled, PushpinOutlined, CloseOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Checkbox } from 'antd';
 import './index.css'
@@ -21,7 +21,25 @@ const CardComponent = (props: IProps) => {
     const [editFieldValue, setEditFieldValue] = useState('')
     const [titleValue, setTitleValue] = useState(title)
 
+    const [checkedData, setCheckedData] = useState<ITask[]>([InitTask])
+    const [notCheckedData, setNotCheckedData] = useState<ITask[]>([InitTask])
+
     const [editData, setEditData] = useState<IEditData>(InitEditData)
+
+    useEffect(()=>{
+        const { toDoTaskList } = data
+        let checkedData: ITask[] = []
+        let notCheckedData: ITask[] = []
+        toDoTaskList.filter((x:ITask)=>{
+            if(x.checked) {
+                checkedData.push(x)
+            } else {
+                notCheckedData.push(x)
+            }
+        })
+        setCheckedData(checkedData)
+        setNotCheckedData(notCheckedData)
+    },[data])
 
     const onCheckboxChange = (x: ITask, e: CheckboxChangeEvent) => {
         const payload: IAddTaskPayload = {
@@ -188,14 +206,47 @@ const CardComponent = (props: IProps) => {
                 extra={
                     <>
                         {pinned ? <PushpinFilled onClick={() => changePinned(!pinned)} /> : <PushpinOutlined onClick={() => changePinned(!pinned)} />}
-                        <DeleteOutlined onClick={deleteMasterData} />
+                        <DeleteOutlined className="delete-icon" onClick={deleteMasterData} />
                     </>
                 }>
                 <Space.Compact style={{ width: '100%' }}>
                     <Input placeholder='Add task to list' value={textValue} onChange={onTextChange} />
                     <Button type="primary" onClick={onAddTask}>Add</Button>
                 </Space.Compact>
-                {toDoTaskList && toDoTaskList.length > 0 && toDoTaskList.map((x: ITask, index) => {
+                {notCheckedData && notCheckedData.length > 0 && notCheckedData.map((x: ITask, index) => {
+                    return <div className='card-content-row' key={index}>
+                        <Checkbox
+                            checked={x.checked}
+                            onChange={(e) => onCheckboxChange(x, e)}
+                        >
+                        </Checkbox>
+                        <div className='card-text'>
+                            {editData.isEdit && editData.todoId === todoId && editData.taskId === x.taskId
+                                ? <div>
+                                    <Input
+                                        value={editFieldValue}
+                                        variant="borderless"
+                                        onChange={onEditFieldChange}
+                                        onBlur={() => onEditSubmit(x)}
+                                        autoFocus
+                                        className = {`${x.checked ? 'strike-through': ''}`} 
+                                        addonAfter={<CloseOutlined onClick={() => onDeleteSubmit(x)} />}
+                                    />
+                                </div>
+                                : <div>
+                                    <Input
+                                        variant="borderless"
+                                        value={x.content}
+                                        className = {`${x.checked ? 'strike-through': ''}`} 
+                                        onFocus={() => onEditClick(x)}
+                                    />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                })}
+                {checkedData && checkedData.length > 0 && <Divider/>}
+                {checkedData && checkedData.length > 0 && checkedData.map((x: ITask, index) => {
                     return <div className='card-content-row' key={index}>
                         <Checkbox
                             checked={x.checked}
