@@ -1,0 +1,12 @@
+.card-content-row {
+    display: flex;
+}
+
+.card-text{
+    padding-left: 3px !important;
+}
+
+.strike-through {
+    text-decoration: line-through;
+    color: grey;
+}
