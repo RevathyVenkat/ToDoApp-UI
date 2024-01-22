@@ -1,8 +1,14 @@
 .card-container{
     padding: 20px 50px 20px 50px !important;
+    margin-right: 0px !important;
 }
 
 .loading-container{
     padding-left: 50% !important;
     padding-top: 15% !important;
+}
+
+.home-container{
+    background-color: #f1f1f1;
+    min-height: 100vh !important;
 }

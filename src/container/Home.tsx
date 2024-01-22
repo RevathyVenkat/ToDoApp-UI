@@ -3,14 +3,14 @@ import Header from '../components/Header';
 import CardComponent from '../components/Card';
 import { IAddMasterPayload, ITask, IToDoData, InitToDoData, NotificationType } from '../Model/constant';
 import { addMaster, getToDoData } from '../api/taskApi';
-import { Button, Col, Divider, FloatButton, Input, Modal, Row, Spin, notification } from 'antd';
+import { Button, Col, Divider, Empty, FloatButton, Input, Modal, Row, Spin, notification } from 'antd';
 import { CustomerServiceOutlined, LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import './index.css'
 
 function Home() {
-    const [toDoData, setToDoData] = useState<IToDoData[]>([InitToDoData])
-    const [pinnedData, setPinnedData] = useState<IToDoData[]>([InitToDoData])
-    const [notPinnedData, setNotPinnedData] = useState<IToDoData[]>([InitToDoData])
+    const [toDoData, setToDoData] = useState<IToDoData[] | []>([])
+    const [pinnedData, setPinnedData] = useState<IToDoData[] | []>([])
+    const [notPinnedData, setNotPinnedData] = useState<IToDoData[] | []>([])
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [titleValue, setTitleValue] = useState('')
     const [isLoading, setIsLoading] = useState(false);
@@ -27,17 +27,15 @@ function Home() {
         setIsLoading(true)
         getToDoData()
             .then((data) => {
-                console.log(data);
                 setToDoData(data);
             }).catch((err: any) => {
-                console.log(err)
             }).finally(() => {
                 setIsLoading(false)
             });
     }, [])
 
     useEffect(() => {
-        if(toDoData && toDoData.length > 0) {
+        if (toDoData && toDoData.length > 0) {
             let pinnedData: IToDoData[] = []
             let notPinnedData: IToDoData[] = []
             toDoData.filter((x: IToDoData) => {
@@ -61,6 +59,7 @@ function Home() {
     };
 
     const handleOk = () => {
+        setTitleValue('')
         setIsModalOpen(false);
         const payload: IAddMasterPayload = {
             todoId: null,
@@ -78,14 +77,13 @@ function Home() {
     };
 
     const handleCancel = () => {
+        setTitleValue('')
         setIsModalOpen(false);
     };
 
     const onEditFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTitleValue(e.target.value)
     }
-
-
 
     return (
         <div className='home-container'>
@@ -110,6 +108,7 @@ function Home() {
                 <Input
                     placeholder='Enter title'
                     value={titleValue}
+                    onPressEnter={handleOk}
                     onChange={onEditFieldChange}
                 />
             </Modal>
@@ -118,29 +117,45 @@ function Home() {
                     <Spin indicator={<LoadingOutlined style={{ fontSize: 36 }} spin />} />
                 </div>
                 : <>
-                    <Row gutter={[32, 32]} className='card-container'>
-                        {pinnedData && pinnedData.length > 0 && pinnedData.map((x: IToDoData, index) => {
-                            return <Col span={6}>
-                                <CardComponent
-                                    key={index}
-                                    data={x}
-                                    changeMasterData={changeMasterData}
-                                    notificationUpdate={openNotificationWithIcon} />
-                            </Col>
-                        })}
-                    </Row>
-                    {notPinnedData && notPinnedData.length > 0 && <Divider />}
-                    <Row gutter={[32, 32]} className='card-container'>
-                        {notPinnedData && notPinnedData.length > 0 && notPinnedData.map((x: IToDoData, index) => {
-                            return <Col span={6}>
-                                <CardComponent
-                                    key={index}
-                                    data={x}
-                                    changeMasterData={changeMasterData}
-                                    notificationUpdate={openNotificationWithIcon} />
-                            </Col>
-                        })}
-                    </Row>
+                    {toDoData.length > 0 ? <>
+                        <Row gutter={[32, 32]} className='card-container'>
+                            {pinnedData && pinnedData.length > 0 && pinnedData.map((x: IToDoData, index) => {
+                                return <Col span={6}>
+                                    <CardComponent
+                                        key={index}
+                                        data={x}
+                                        changeMasterData={changeMasterData}
+                                        notificationUpdate={openNotificationWithIcon} />
+                                </Col>
+                            })}
+                        </Row>
+                        {notPinnedData && notPinnedData.length > 0  && pinnedData && pinnedData.length > 0 && <Divider />}
+                        <Row gutter={[32, 32]} className='card-container'>
+                            {notPinnedData && notPinnedData.length > 0 && notPinnedData.map((x: IToDoData, index) => {
+                                return <Col span={6}>
+                                    <CardComponent
+                                        key={index}
+                                        data={x}
+                                        changeMasterData={changeMasterData}
+                                        notificationUpdate={openNotificationWithIcon} />
+                                </Col>
+                            })}
+                        </Row>
+                    </> : <>
+                        <Empty
+                            className=''
+                            image="https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original"
+                            imageStyle={{
+                                height: 60,
+                                marginTop: '20%'
+                            }}
+                            description={
+                                <span>No ToDo List present</span>
+                            }
+                        >
+                            <Button type="primary" onClick={showModal}>Create Now</Button>
+                        </Empty>
+                    </>}
                 </>
             }
         </div>

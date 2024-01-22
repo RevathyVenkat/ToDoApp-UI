@@ -26,12 +26,12 @@ const CardComponent = (props: IProps) => {
 
     const [editData, setEditData] = useState<IEditData>(InitEditData)
 
-    useEffect(()=>{
+    useEffect(() => {
         const { toDoTaskList } = data
         let checkedData: ITask[] = []
         let notCheckedData: ITask[] = []
-        toDoTaskList.filter((x:ITask)=>{
-            if(x.checked) {
+        toDoTaskList.filter((x: ITask) => {
+            if (x.checked) {
                 checkedData.push(x)
             } else {
                 notCheckedData.push(x)
@@ -39,7 +39,7 @@ const CardComponent = (props: IProps) => {
         })
         setCheckedData(checkedData)
         setNotCheckedData(notCheckedData)
-    },[data])
+    }, [data])
 
     const onCheckboxChange = (x: ITask, e: CheckboxChangeEvent) => {
         const payload: IAddTaskPayload = {
@@ -183,34 +183,36 @@ const CardComponent = (props: IProps) => {
 
     return (
         <Space direction="vertical" size={16}>
-            <Card 
-            hoverable
-            title={
-                editData.isEdit && editData.todoId === todoId
-                    ? <div>
-                        <Input
-                            value={titleValue}
-                            variant="borderless"
-                            onChange={onTitleChange}
-                            onBlur={() => onTitleSubmit()}
-                        />
-                    </div>
-                    : <div>
-                        <Input
-                            variant="borderless"
-                            value={title}
-                            onFocus={() => onTitleClick()}
-                        />
-                    </div>
-            }
+            <Card
+                bordered
+                hoverable
+                bodyStyle={{maxHeight:'500px', overflowY: 'auto'}}
+                title={
+                    editData.isEdit && editData.todoId === todoId
+                        ? <div>
+                            <Input
+                                value={titleValue}
+                                variant="borderless"
+                                onChange={onTitleChange}
+                                onBlur={() => onTitleSubmit()}
+                            />
+                        </div>
+                        : <div>
+                            <Input
+                                variant="borderless"
+                                value={title}
+                                onFocus={() => onTitleClick()}
+                            />
+                        </div>
+                }
                 extra={
                     <>
                         {pinned ? <PushpinFilled onClick={() => changePinned(!pinned)} /> : <PushpinOutlined onClick={() => changePinned(!pinned)} />}
                         <DeleteOutlined className="delete-icon" onClick={deleteMasterData} />
                     </>
                 }>
-                <Space.Compact style={{ width: '100%' }}>
-                    <Input placeholder='Add task to list' value={textValue} onChange={onTextChange} />
+                <Space.Compact style={{ width: '100%', paddingBottom: '10px' }}>
+                    <Input placeholder='Add task to list' value={textValue} onPressEnter={onAddTask} onChange={onTextChange} />
                     <Button type="primary" onClick={onAddTask}>Add</Button>
                 </Space.Compact>
                 {notCheckedData && notCheckedData.length > 0 && notCheckedData.map((x: ITask, index) => {
@@ -229,7 +231,7 @@ const CardComponent = (props: IProps) => {
                                         onChange={onEditFieldChange}
                                         onBlur={() => onEditSubmit(x)}
                                         autoFocus
-                                        className = {`${x.checked ? 'strike-through': ''}`} 
+                                        className={`${x.checked ? 'strike-through' : ''}`}
                                         addonAfter={<CloseOutlined onClick={() => onDeleteSubmit(x)} />}
                                     />
                                 </div>
@@ -237,7 +239,7 @@ const CardComponent = (props: IProps) => {
                                     <Input
                                         variant="borderless"
                                         value={x.content}
-                                        className = {`${x.checked ? 'strike-through': ''}`} 
+                                        className={`${x.checked ? 'strike-through' : ''}`}
                                         onFocus={() => onEditClick(x)}
                                     />
                                 </div>
@@ -245,7 +247,7 @@ const CardComponent = (props: IProps) => {
                         </div>
                     </div>
                 })}
-                {checkedData && checkedData.length > 0 && <Divider/>}
+                {checkedData && checkedData.length > 0 && notCheckedData && notCheckedData.length > 0 && <Divider />}
                 {checkedData && checkedData.length > 0 && checkedData.map((x: ITask, index) => {
                     return <div className='card-content-row' key={index}>
                         <Checkbox
@@ -262,7 +264,7 @@ const CardComponent = (props: IProps) => {
                                         onChange={onEditFieldChange}
                                         onBlur={() => onEditSubmit(x)}
                                         autoFocus
-                                        className = {`${x.checked ? 'strike-through': ''}`} 
+                                        className={`${x.checked ? 'strike-through' : ''}`}
                                         addonAfter={<CloseOutlined onClick={() => onDeleteSubmit(x)} />}
                                     />
                                 </div>
@@ -270,7 +272,7 @@ const CardComponent = (props: IProps) => {
                                     <Input
                                         variant="borderless"
                                         value={x.content}
-                                        className = {`${x.checked ? 'strike-through': ''}`} 
+                                        className={`${x.checked ? 'strike-through' : ''}`}
                                         onFocus={() => onEditClick(x)}
                                     />
                                 </div>
