@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Card, Divider, Input, Space } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { Button, Card, Divider, Input, InputRef, Space } from 'antd';
 import { IAddMasterPayload, IAddTaskPayload, IEditData, ITask, IToDoData, InitEditData, InitTask, NotificationType } from '../../Model/constant';
 import { PushpinFilled, PushpinOutlined, CloseOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Checkbox } from 'antd';
 import './index.css'
 import { addChecked, addMaster, addPinnedChange, addTask, deleteMaster, deleteTask } from '../../api/taskApi';
 import { CheckboxChangeEvent } from 'antd/es/checkbox';
+import TextArea from 'antd/es/input/TextArea';
 
 interface IProps {
     data: IToDoData
@@ -25,6 +26,12 @@ const CardComponent = (props: IProps) => {
     const [notCheckedData, setNotCheckedData] = useState<ITask[]>([InitTask])
 
     const [editData, setEditData] = useState<IEditData>(InitEditData)
+
+    const inputRef = useRef<InputRef>(null);
+
+    const sharedProps = {
+        ref: inputRef,
+    };
 
     useEffect(() => {
         const { toDoTaskList } = data
@@ -56,7 +63,7 @@ const CardComponent = (props: IProps) => {
             })
     }
 
-    const onTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setTextValue(e.target.value)
     }
 
@@ -86,7 +93,7 @@ const CardComponent = (props: IProps) => {
         setEditData(data)
     }
 
-    const onEditFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onEditFieldChange = (e: any) => {
         setEditFieldValue(e.target.value)
     }
 
@@ -186,7 +193,7 @@ const CardComponent = (props: IProps) => {
             <Card
                 bordered
                 hoverable
-                bodyStyle={{maxHeight:'500px', overflowY: 'auto'}}
+                bodyStyle={{ maxHeight: '500px', overflowY: 'auto' }}
                 title={
                     editData.isEdit && editData.todoId === todoId
                         ? <div>
@@ -212,7 +219,7 @@ const CardComponent = (props: IProps) => {
                     </>
                 }>
                 <Space.Compact style={{ width: '100%', paddingBottom: '10px' }}>
-                    <Input placeholder='Add task to list' value={textValue} onPressEnter={onAddTask} onChange={onTextChange} />
+                    <TextArea autoSize placeholder='Add task to list' value={textValue} onPressEnter={onAddTask} onChange={onTextChange} />
                     <Button type="primary" onClick={onAddTask}>Add</Button>
                 </Space.Compact>
                 {notCheckedData && notCheckedData.length > 0 && notCheckedData.map((x: ITask, index) => {
@@ -224,19 +231,23 @@ const CardComponent = (props: IProps) => {
                         </Checkbox>
                         <div className='card-text'>
                             {editData.isEdit && editData.todoId === todoId && editData.taskId === x.taskId
-                                ? <div>
-                                    <Input
+                                ? <Space.Compact>
+                                    <TextArea
+                                        {...sharedProps}
+                                        autoSize
                                         value={editFieldValue}
                                         variant="borderless"
                                         onChange={onEditFieldChange}
                                         onBlur={() => onEditSubmit(x)}
                                         autoFocus
-                                        className={`${x.checked ? 'strike-through' : ''}`}
-                                        addonAfter={<CloseOutlined onClick={() => onDeleteSubmit(x)} />}
-                                    />
-                                </div>
+
+                                        className={`${x.checked ? 'strike-through' : ''}`} />
+                                    <CloseOutlined onClick={() => onDeleteSubmit(x)} />
+                                </Space.Compact>
                                 : <div>
-                                    <Input
+                                    <TextArea
+                                        {...sharedProps}
+                                        autoSize
                                         variant="borderless"
                                         value={x.content}
                                         className={`${x.checked ? 'strike-through' : ''}`}
@@ -257,19 +268,22 @@ const CardComponent = (props: IProps) => {
                         </Checkbox>
                         <div className='card-text'>
                             {editData.isEdit && editData.todoId === todoId && editData.taskId === x.taskId
-                                ? <div>
-                                    <Input
+                                ? <Space.Compact>
+                                    <TextArea
+                                        {...sharedProps}
+                                        autoSize
                                         value={editFieldValue}
                                         variant="borderless"
                                         onChange={onEditFieldChange}
                                         onBlur={() => onEditSubmit(x)}
                                         autoFocus
-                                        className={`${x.checked ? 'strike-through' : ''}`}
-                                        addonAfter={<CloseOutlined onClick={() => onDeleteSubmit(x)} />}
-                                    />
-                                </div>
+                                        className={`${x.checked ? 'strike-through' : ''}`} />
+                                    <CloseOutlined onClick={() => onDeleteSubmit(x)} />
+                                </Space.Compact>
                                 : <div>
-                                    <Input
+                                    <TextArea
+                                        {...sharedProps}
+                                        autoSize
                                         variant="borderless"
                                         value={x.content}
                                         className={`${x.checked ? 'strike-through' : ''}`}
